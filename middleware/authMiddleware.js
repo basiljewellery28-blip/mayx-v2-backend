@@ -1,36 +1,29 @@
-// backend/middleware/authMiddleware.js - SIMPLE WORKING VERSION
+require('dotenv').config(); // <-- ADD THIS LINE AT THE VERY TOP
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-in-production';
-
-// Middleware to verify JWT token
-const authenticateToken = (req, res, next) => {
+function authenticateToken(req, res, next) {
+  // Get token from the Authorization header
   const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+  const token = authHeader && authHeader.split(' ')[1]; // Format is "Bearer TOKEN"
 
-  console.log('🔐 Checking authentication...');
-
-  if (!token) {
-    console.log('❌ No token provided');
-    return res.status(401).json({ error: 'Access token required' });
+  if (token == null) {
+    console.warn('Auth Middleware: No token provided.');
+    return res.status(401).json({ error: 'Access denied. No token provided.' });
   }
 
-  jwt.verify(token, JWT_SECRET, (err, user) => {
+  // Verify the token
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
     if (err) {
-      console.log('❌ Invalid token:', err.message);
-      return res.status(403).json({ error: 'Invalid or expired token' });
+      console.error('Auth Middleware: Token is invalid.', err.message);
+      return res.status(403).json({ error: 'Invalid token.' }); // 403 Forbidden
     }
-    
-    console.log('✅ Token valid for user:', user.email);
+
+    // Token is valid. Add the user payload to the request object.
     req.user = user;
+    
+    // Move to the next function
     next();
   });
-};
+}
 
-// Simple authorization - allow all authenticated users for now
-const authorizeBriefAccess = async (req, res, next) => {
-  console.log('✅ Authorization: Allowing access for authenticated user');
-  next(); // Allow all authenticated users temporarily
-};
-
-module.exports = { authenticateToken, authorizeBriefAccess, JWT_SECRET };
+module.exports = { authenticateToken };
