@@ -10,7 +10,7 @@ router.get('/', authenticateToken, async (req, res) => {
     console.log('📖 GET /api/briefs called by user:', req.user.userId);
     // You can now filter by consultant ID if you want:
     // const result = await db.query('SELECT * FROM briefs WHERE consultant_id = $1 ORDER BY ...', [req.user.userId]);
-    
+
     const result = await db.query('SELECT * FROM briefs ORDER BY created_at DESC');
     res.json({
       message: 'Briefs retrieved successfully!',
@@ -39,21 +39,56 @@ router.get('/:id', authenticateToken, async (req, res) => {
 
 // POST create brief
 // 4. PROTECT THIS ROUTE
+// POST create brief
 router.post('/', authenticateToken, async (req, res) => {
   try {
-    // We can get the consultant_id from the token, not the body
-    const consultant_id = req.user.userId; 
-    
-    const { client_id, title, description, style_code_id } = req.body;
+    const consultant_id = req.user.userId;
+
+    // Extract client details and brief details from request body
+    const {
+      clientName, clientEmail, clientContact, clientProfile, // Client fields
+      title, description, style_code_id, category, ringType, ringDesign, // Brief fields
+      // ... capture other fields to store in brief_versions later if needed
+      ...otherData
+    } = req.body;
+
+    // 1. Create or Find Client
+    // For now, we'll just create a new client entry for every brief to keep it simple,
+    // or you could check if one exists by email/profile_number first.
+    let client_id;
+
+    if (clientName) {
+      const clientResult = await db.query(
+        'INSERT INTO clients (name, email, contact_number, profile_number) VALUES ($1, $2, $3, $4) RETURNING id',
+        [clientName, clientEmail, clientContact, clientProfile]
+      );
+      client_id = clientResult.rows[0].id;
+    } else {
+      // Handle case where no client info is provided (maybe optional?)
+      // For now, let's require it or set a placeholder if your schema allows nulls (it doesn't: client_id INTEGER NOT NULL)
+      return res.status(400).json({ error: 'Client name is required' });
+    }
+
     const briefNumber = 'MB-' + Date.now();
-    
+
+    // 2. Create Brief
     const result = await db.query(
       'INSERT INTO briefs (brief_number, client_id, consultant_id, title, description, style_code_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-      [briefNumber, client_id, consultant_id, title, description, style_code_id || null]
+      [briefNumber, client_id, consultant_id, title || `Brief for ${clientName}`, description, style_code_id || null]
     );
-    
-    res.status(201).json({ message: 'Brief created!', brief: result.rows[0] });
+
+    const newBrief = result.rows[0];
+
+    // 3. Create Initial Brief Version (Optional but recommended to store all the wizard data)
+    // We'll store the entire formData in the 'data' JSONB column
+    await db.query(
+      'INSERT INTO brief_versions (brief_id, version_number, data, created_by) VALUES ($1, $2, $3, $4)',
+      [newBrief.id, 1, JSON.stringify(req.body), consultant_id]
+    );
+
+    res.status(201).json({ message: 'Brief created!', brief: newBrief });
   } catch (error) {
+    console.error('Error creating brief:', error);
     res.status(500).json({ error: 'Failed to create brief' });
   }
 });

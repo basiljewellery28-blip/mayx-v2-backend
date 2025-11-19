@@ -1,6 +1,16 @@
 -- db/createTables.sql
 -- This script creates the initial tables for the MAYX database.
 
+-- 0. Create the 'clients' table
+CREATE TABLE IF NOT EXISTS clients (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255),
+    contact_number VARCHAR(50),
+    profile_number VARCHAR(50),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- 1. Create the 'briefs' table
 CREATE TABLE IF NOT EXISTS briefs (
     id SERIAL PRIMARY KEY,
