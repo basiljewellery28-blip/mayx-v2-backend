@@ -11,7 +11,7 @@ router.post('/register', async (req, res) => {
     if (!name || !email || !password || !role) {
         return res.status(400).json({ error: 'All fields are required.' });
     }
-    
+
     try {
         // Hash the password
         const salt = await bcrypt.genSalt(10);
@@ -22,7 +22,7 @@ router.post('/register', async (req, res) => {
             'INSERT INTO users (name, email, password_hash, role) VALUES ($1, $2, $3, $4) RETURNING id, name, email, role, created_at',
             [name, email, password_hash, role]
         );
-        
+
         const user = result.rows[0];
         res.status(201).json({ message: 'User registered successfully!', user });
 
@@ -47,17 +47,17 @@ router.post('/login', async (req, res) => {
     try {
         // 1. Find the user by email
         const userResult = await db.query('SELECT * FROM users WHERE email = $1', [email]);
-        
+
         if (userResult.rows.length === 0) {
             console.warn(`Login attempt: No user found with email ${email}`);
             return res.status(400).json({ error: 'Invalid credentials.' });
         }
-        
+
         const user = userResult.rows[0];
 
         // 2. Compare the provided password with the hashed password in the database
         const validPassword = await bcrypt.compare(password, user.password_hash);
-        
+
         if (!validPassword) {
             console.warn(`Login attempt: Invalid password for user ${email}`);
             return res.status(400).json({ error: 'Invalid credentials.' });
@@ -69,11 +69,11 @@ router.post('/login', async (req, res) => {
             process.env.JWT_SECRET, // Make sure JWT_SECRET is in your .env file
             { expiresIn: '7d' } // Token expires in 7d
         );
-        
+
         // Don't send the password hash back to the client
         delete user.password_hash;
 
-        console.log(`✅ Login successful: ${user.email} (${user.role})`);
+
         res.json({
             message: 'Login successful!',
             token,

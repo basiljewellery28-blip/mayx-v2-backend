@@ -5,13 +5,37 @@ const { authenticateToken } = require('../middleware/authMiddleware'); // <-- 1.
 
 // GET all briefs
 // 2. ADD 'authenticateToken' right before (req, res)
+// GET all briefs
 router.get('/', authenticateToken, async (req, res) => {
   try {
-    console.log('📖 GET /api/briefs called by user:', req.user.userId);
-    // You can now filter by consultant ID if you want:
-    // const result = await db.query('SELECT * FROM briefs WHERE consultant_id = $1 ORDER BY ...', [req.user.userId]);
 
-    const result = await db.query('SELECT * FROM briefs ORDER BY created_at DESC');
+
+    const { search, status, client_id } = req.query;
+    let queryText = 'SELECT * FROM briefs WHERE 1=1';
+    const queryParams = [];
+    let paramCount = 1;
+
+    if (search) {
+      queryText += ` AND (title ILIKE $${paramCount} OR description ILIKE $${paramCount})`;
+      queryParams.push(`%${search}%`);
+      paramCount++;
+    }
+
+    if (status) {
+      queryText += ` AND status = $${paramCount}`;
+      queryParams.push(status);
+      paramCount++;
+    }
+
+    if (client_id) {
+      queryText += ` AND client_id = $${paramCount}`;
+      queryParams.push(client_id);
+      paramCount++;
+    }
+
+    queryText += ' ORDER BY created_at DESC';
+
+    const result = await db.query(queryText, queryParams);
     res.json({
       message: 'Briefs retrieved successfully!',
       count: result.rows.length,
@@ -25,15 +49,43 @@ router.get('/', authenticateToken, async (req, res) => {
 
 // GET single brief
 // 3. PROTECT THIS ROUTE
+// GET single brief
 router.get('/:id', authenticateToken, async (req, res) => {
   try {
-    const result = await db.query('SELECT * FROM briefs WHERE id = $1', [req.params.id]);
+    const result = await db.query(
+      `SELECT b.*, c.name as client_name, u.name as consultant_name 
+       FROM briefs b 
+       LEFT JOIN clients c ON b.client_id = c.id 
+       LEFT JOIN users u ON b.consultant_id = u.id 
+       WHERE b.id = $1`,
+      [req.params.id]
+    );
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Brief not found' });
     }
     res.json({ brief: result.rows[0] });
   } catch (error) {
     res.status(500).json({ error: 'Failed to retrieve brief' });
+  }
+});
+
+// ... (POST route remains unchanged) ...
+
+// GET brief versions
+router.get('/:id/versions', authenticateToken, async (req, res) => {
+  try {
+    const result = await db.query(
+      `SELECT bv.*, u.name as user_name 
+       FROM brief_versions bv 
+       LEFT JOIN users u ON bv.created_by = u.id 
+       WHERE bv.brief_id = $1 
+       ORDER BY bv.version_number DESC`,
+      [req.params.id]
+    );
+    res.json({ versions: result.rows });
+  } catch (error) {
+    console.error('Error retrieving versions:', error);
+    res.status(500).json({ error: 'Failed to retrieve versions' });
   }
 });
 
@@ -58,11 +110,25 @@ router.post('/', authenticateToken, async (req, res) => {
     let client_id;
 
     if (clientName) {
-      const clientResult = await db.query(
-        'INSERT INTO clients (name, email, contact_number, profile_number) VALUES ($1, $2, $3, $4) RETURNING id',
-        [clientName, clientEmail, clientContact, clientProfile]
+      // Check if client already exists
+      let clientResult = await db.query(
+        'SELECT id FROM clients WHERE email = $1 OR profile_number = $2',
+        [clientEmail, clientProfile]
       );
-      client_id = clientResult.rows[0].id;
+
+      if (clientResult.rows.length > 0) {
+        // Client exists
+        client_id = clientResult.rows[0].id;
+        console.log(`Found existing client ID: ${client_id}`);
+      } else {
+        // Create new client
+        clientResult = await db.query(
+          'INSERT INTO clients (name, email, contact_number, profile_number) VALUES ($1, $2, $3, $4) RETURNING id',
+          [clientName, clientEmail, clientContact, clientProfile]
+        );
+        client_id = clientResult.rows[0].id;
+        console.log(`Created new client ID: ${client_id}`);
+      }
     } else {
       // Handle case where no client info is provided (maybe optional?)
       // For now, let's require it or set a placeholder if your schema allows nulls (it doesn't: client_id INTEGER NOT NULL)
@@ -86,6 +152,13 @@ router.post('/', authenticateToken, async (req, res) => {
       [newBrief.id, 1, JSON.stringify(req.body), consultant_id]
     );
 
+    // EMAIL NOTIFICATION
+    if (clientEmail) {
+      const { sendBriefCreatedEmail } = require('../services/emailService');
+      // Send to client
+      sendBriefCreatedEmail(clientEmail, { ...newBrief, client_name: clientName }).catch(err => console.error('Failed to send email:', err));
+    }
+
     res.status(201).json({ message: 'Brief created!', brief: newBrief });
   } catch (error) {
     console.error('Error creating brief:', error);
@@ -93,30 +166,41 @@ router.post('/', authenticateToken, async (req, res) => {
   }
 });
 
-// Comments routes
-// 5. PROTECT THESE ROUTES
-router.get('/:id/comments', authenticateToken, async (req, res) => {
+// PUT update brief status
+router.put('/:id/status', authenticateToken, async (req, res) => {
   try {
+    const { status } = req.body;
     const result = await db.query(
-      'SELECT c.*, u.name as user_name, u.role as user_role FROM comments c JOIN users u ON c.user_id = u.id WHERE c.brief_id = $1 ORDER BY c.created_at DESC',
-      [req.params.id]
+      'UPDATE briefs SET status = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2 RETURNING *',
+      [status, req.params.id]
     );
-    res.json({ comments: result.rows });
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to retrieve comments' });
-  }
-});
+    const { emitEvent } = require('../services/socketService');
 
-router.post('/:id/comments', authenticateToken, async (req, res) => {
-  try {
-    const { message } = req.body;
-    const result = await db.query(
-      'INSERT INTO comments (brief_id, user_id, message) VALUES ($1, $2, $3) RETURNING *',
-      [req.params.id, req.user.userId, message]
-    );
-    res.status(201).json({ comment: result.rows[0] });
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Brief not found' });
+    }
+
+    const updatedBrief = result.rows[0];
+    emitEvent(`brief_${req.params.id}`, 'brief_status_updated', updatedBrief);
+
+    // NOTIFICATION LOGIC
+    // Notify the consultant if someone else changed it (unlikely but possible)
+    // OR notify the client (if we had one).
+    // For now, let's notify the consultant if the user changing it is NOT the consultant.
+    if (req.user.userId !== updatedBrief.consultant_id) {
+      const { createNotification } = require('../services/notificationService');
+      await createNotification(
+        updatedBrief.consultant_id,
+        'status_change',
+        `Brief "${updatedBrief.title}" status updated to ${status}`,
+        updatedBrief.id
+      );
+    }
+
+    res.json({ message: 'Status updated', brief: updatedBrief });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to add comment' });
+    console.error('Error updating status:', error);
+    res.status(500).json({ error: 'Failed to update status' });
   }
 });
 
