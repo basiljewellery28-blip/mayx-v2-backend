@@ -204,5 +204,117 @@ router.put('/:id/status', authenticateToken, async (req, res) => {
   }
 });
 
+// POST request render
+router.post('/:id/request-render', authenticateToken, async (req, res) => {
+  try {
+    const result = await db.query(
+      "UPDATE briefs SET render_status = 'render_requested', updated_at = CURRENT_TIMESTAMP WHERE id = $1 RETURNING *",
+      [req.params.id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Brief not found' });
+    }
+
+    const updatedBrief = result.rows[0];
+    const { emitEvent } = require('../services/socketService');
+    emitEvent(`brief_${req.params.id}`, 'brief_updated', updatedBrief);
+
+    // Notify Admin/Designer (Mock notification for now)
+    console.log(`Render requested for brief ${updatedBrief.brief_number}`);
+
+    res.json({ message: 'Render requested', brief: updatedBrief });
+  } catch (error) {
+    console.error('Error requesting render:', error);
+    res.status(500).json({ error: 'Failed to request render' });
+  }
+});
+
+// POST upload render
+const upload = require('../middleware/uploadMiddleware');
+router.post('/:id/upload-render', authenticateToken, upload.single('file'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+
+    // In a real app, upload to S3 here and get URL. 
+    // For now, we assume local upload via middleware and construct URL.
+    const fileUrl = `/uploads/${req.file.filename}`;
+
+    // Append to render_files array and update status
+    const result = await db.query(
+      `UPDATE briefs 
+       SET render_files = COALESCE(render_files, '[]'::jsonb) || $1::jsonb, 
+           render_status = 'done',
+           updated_at = CURRENT_TIMESTAMP 
+       WHERE id = $2 
+       RETURNING *`,
+      [JSON.stringify([{ url: fileUrl, uploaded_at: new Date() }]), req.params.id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Brief not found' });
+    }
+
+    const updatedBrief = result.rows[0];
+
+    // Notify Client
+    const { createNotification } = require('../services/notificationService');
+    // Assuming we have client_id linked to a user_id or we notify via email/push
+    // For this MVP, we'll create a notification for the Consultant to forward
+    await createNotification(
+      updatedBrief.consultant_id,
+      'render_ready',
+      `New render uploaded for brief ${updatedBrief.brief_number}`,
+      updatedBrief.id
+    );
+
+    const { emitEvent } = require('../services/socketService');
+    emitEvent(`brief_${req.params.id}`, 'brief_updated', updatedBrief);
+
+    res.json({ message: 'Render uploaded', brief: updatedBrief, fileUrl });
+  } catch (error) {
+    console.error('Error uploading render:', error);
+    res.status(500).json({ error: 'Failed to upload render' });
+  }
+});
+
+// POST signoff brief
+router.post('/:id/signoff', authenticateToken, async (req, res) => {
+  try {
+    const { signatureData } = req.body; // Base64 signature or similar
+
+    // Update status to 'approved' and store signature (if we had a column for it, for now just status)
+    // Ideally we'd save signatureData to a file/S3 and store the URL in a 'signature_url' column
+    const result = await db.query(
+      "UPDATE briefs SET status = 'approved', updated_at = CURRENT_TIMESTAMP WHERE id = $1 RETURNING *",
+      [req.params.id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Brief not found' });
+    }
+
+    const updatedBrief = result.rows[0];
+    const { emitEvent } = require('../services/socketService');
+    emitEvent(`brief_${req.params.id}`, 'brief_status_updated', updatedBrief);
+
+    // Notify Consultant
+    const { createNotification } = require('../services/notificationService');
+    await createNotification(
+      updatedBrief.consultant_id,
+      'brief_signed_off',
+      `Brief "${updatedBrief.title}" has been approved by the client!`,
+      updatedBrief.id
+    );
+
+    res.json({ message: 'Brief signed off successfully', brief: updatedBrief });
+  } catch (error) {
+    console.error('Error signing off brief:', error);
+    res.status(500).json({ error: 'Failed to sign off brief' });
+  }
+});
+
 module.exports = router;
 
