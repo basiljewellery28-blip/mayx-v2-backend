@@ -23,8 +23,9 @@ const initializeDatabase = async () => {
 };
 
 // Call this when your server starts
-initializeDatabase();
+const initPromise = initializeDatabase();
 
 module.exports = {
   query: (text, params) => pool.query(text, params),
+  initPromise
 };

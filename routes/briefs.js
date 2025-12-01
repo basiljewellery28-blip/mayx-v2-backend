@@ -99,14 +99,11 @@ router.post('/', authenticateToken, async (req, res) => {
     // Extract client details and brief details from request body
     const {
       clientName, clientEmail, clientContact, clientProfile, // Client fields
-      title, description, style_code_id, category, ringType, ringDesign, // Brief fields
-      // ... capture other fields to store in brief_versions later if needed
+      title, description, style_code_id, category, budget, // Brief fields
       ...otherData
     } = req.body;
 
     // 1. Create or Find Client
-    // For now, we'll just create a new client entry for every brief to keep it simple,
-    // or you could check if one exists by email/profile_number first.
     let client_id;
 
     if (clientName) {
@@ -130,17 +127,16 @@ router.post('/', authenticateToken, async (req, res) => {
         console.log(`Created new client ID: ${client_id}`);
       }
     } else {
-      // Handle case where no client info is provided (maybe optional?)
-      // For now, let's require it or set a placeholder if your schema allows nulls (it doesn't: client_id INTEGER NOT NULL)
+      // Handle case where no client info is provided
       return res.status(400).json({ error: 'Client name is required' });
     }
 
     const briefNumber = 'MB-' + Date.now();
 
-    // 2. Create Brief
+    // 2. Create Brief (including budget)
     const result = await db.query(
-      'INSERT INTO briefs (brief_number, client_id, consultant_id, title, description, style_code_id) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-      [briefNumber, client_id, consultant_id, title || `Brief for ${clientName}`, description, style_code_id || null]
+      'INSERT INTO briefs (brief_number, client_id, consultant_id, title, description, style_code_id, budget) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+      [briefNumber, client_id, consultant_id, title || `Brief for ${clientName}`, description, style_code_id || null, budget || null]
     );
 
     const newBrief = result.rows[0];

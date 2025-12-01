@@ -47,5 +47,17 @@ CREATE TABLE IF NOT EXISTS renders (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- (We will add more tables for users, clients, consultants, etc. later)
--- For now, we can run this to create the core brief-related tables.
+-- 4. Create the 'products' table
+CREATE TABLE IF NOT EXISTS products (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    sku VARCHAR(255) UNIQUE NOT NULL,
+    category VARCHAR(50) NOT NULL, -- 'Ring', 'Earring', etc.
+    sub_category VARCHAR(100), -- 'Engagement Rings', 'Mens Wedding Bands', etc.
+    image_url TEXT,
+    description TEXT,
+    price DECIMAL(10, 2),
+    active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

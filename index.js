@@ -42,6 +42,7 @@ const usersRouter = require('./routes/users');
 const clientsRouter = require('./routes/clients');
 const notificationsRouter = require('./routes/notifications');
 const analyticsRouter = require('./routes/analytics');
+const productsRouter = require('./routes/products');
 
 app.use('/api/briefs', briefsRouter);
 app.use('/api/brief-versions', briefVersionsRouter);
@@ -51,6 +52,7 @@ app.use('/api/users', usersRouter);
 app.use('/api/clients', clientsRouter);
 app.use('/api/notifications', notificationsRouter);
 app.use('/api/analytics', analyticsRouter);
+app.use('/api/products', productsRouter);
 
 app.get('/', (req, res) => {
     res.json({ message: 'Hello from MAYX backend!' });
