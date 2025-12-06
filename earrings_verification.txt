@@ -1,0 +1,98 @@
+
+--- EARRING PRODUCTS IN DB ---
+
+[Angel Art]
+  SKU: AA001        | Name: Angel Art Diamond Earrings 1                       | Image: ✅ Present
+    -> https://brownsjewellers.com/cdn/shop/files/9903WR_1.png?v=1760586123
+  SKU: AA002        | Name: Angel Art Diamond Earrings 2                       | Image: ✅ Present
+    -> https://brownsjewellers.com/cdn/shop/files/9903WR_1.png?v=1760586123
+  SKU: AA003        | Name: Angel Art Diamond Earrings 3                       | Image: ✅ Present
+    -> https://brownsjewellers.com/cdn/shop/files/9903WR_1.png?v=1760586123
+  SKU: AA004        | Name: Angel Art Diamond Earrings 4                       | Image: ✅ Present
+    -> https://brownsjewellers.com/cdn/shop/files/9903WR_1.png?v=1760586123
+  SKU: AA005        | Name: Angel Art Diamond Earrings 5                       | Image: ✅ Present
+    -> https://brownsjewellers.com/cdn/shop/files/9903WR_1.png?v=1760586123
+
+[Diamond Studs]
+  SKU: 9722P        | Name: Protea Diamond Solitaire Stud Earrings             | Image: ✅ Present
+    -> https://brownsjewellers.com/cdn/shop/files/9722P_2.png?v=1763635697&width=1600
+  SKU: 9724Y        | Name: Protea Diamond Solitaire Stud Earrings             | Image: ✅ Present
+    -> https://brownsjewellers.com/cdn/shop/files/9724Y_2.png?v=1760584240&width=1600
+  SKU: 9726P        | Name: Protea Diamond Solitaire Stud Earrings             | Image: ✅ Present
+    -> https://brownsjewellers.com/cdn/shop/files/9726P_2.png?v=1760583909&width=1600
+  SKU: 9731         | Name: Protea Diamond Solitaire Stud Earrings             | Image: ✅ Present
+    -> https://brownsjewellers.com/cdn/shop/files/9731_2.png?v=1760584160&width=1600
+  SKU: 9926WR       | Name: Protea Diamond Cluster Earrings - Large            | Image: ✅ Present
+    -> https://brownsjewellers.com/cdn/shop/files/9926WR_1_85a1c88b-0d2e-472a-8027-1e79ee2e5162.png?v=1760685250&width=1600
+  SKU: STUD003      | Name: Protea Diamond Studs                               | Image: ✅ Present
+    -> https://brownsjewellers.com/cdn/shop/files/9903WR_1.png?v=1760586123
+
+[Drops]
+  SKU: 9404MGR      | Name: Protea Morganite and Diamond Cluster Earrings      | Image: ✅ Present
+    -> https://brownsjewellers.com/cdn/shop/files/9404MGR.png?v=1760583874
+  SKU: 9874WR       | Name: Journey Trilogy Diamond Drop Earrings - Medium     | Image: ✅ Present
+    -> https://brownsjewellers.com/cdn/shop/files/9874WR_1.png?v=1760585412
+  SKU: 9876WR       | Name: Journey Trilogy Diamond Drop Earrings              | Image: ✅ Present
+    -> https://brownsjewellers.com/cdn/shop/files/MC9460W_1.png?v=1760584708
+  SKU: 9913W        | Name: Wild Flower Earrings                               | Image: ✅ Present
+    -> https://brownsjewellers.com/cdn/shop/files/9913W_1_3d90b5e0-02ec-4fdd-be7a-09f937739d17.png?v=1760685442
+  SKU: 9925WR       | Name: Protea Diamond Cluster Earrings                    | Image: ✅ Present
+    -> https://brownsjewellers.com/cdn/shop/files/MC9460W_1.png?v=1760584708
+  SKU: 9960WR       | Name: Journey Diamond Drop Earrings - Medium             | Image: ✅ Present
+    -> https://brownsjewellers.com/cdn/shop/files/9960WR_1.png?v=1760585508
+  SKU: DROP001      | Name: Classic Pearl Drop Earrings                        | Image: ✅ Present
+    -> https://brownsjewellers.com/cdn/shop/files/MC9460W_1.png?v=1760584708
+  SKU: DROP002      | Name: Emerald Cut Diamond Drop Earrings                  | Image: ✅ Present
+    -> https://brownsjewellers.com/cdn/shop/files/MC9460W_1.png?v=1760584708
+  SKU: MC9460W      | Name: Original Angel Royal Tanzanite Drop                | Image: ✅ Present
+    -> https://brownsjewellers.com/cdn/shop/files/MC9460W_1.png?v=1760584708
+
+[Hoops]
+  SKU: 9484T        | Name: Chorus Diamond Huggie Earrings (Rose Gold)         | Image: ✅ Present
+    -> https://brownsjewellers.com/cdn/shop/files/9484T_1.png?v=1760586546
+  SKU: 9484W        | Name: Chorus Diamond Huggie Earrings (White Gold)        | Image: ✅ Present
+    -> https://brownsjewellers.com/cdn/shop/files/9484T_1.png?v=1760586546
+  SKU: 9484YT       | Name: Chorus Diamond Huggie Earrings (Yellow Gold)       | Image: ✅ Present
+    -> https://brownsjewellers.com/cdn/shop/files/9484T_1.png?v=1760586546
+  SKU: 9485T        | Name: Diamond Chunky Hoop Earrings - Small               | Image: ✅ Present
+    -> https://brownsjewellers.com/cdn/shop/files/9485T_1.png?v=1760585773
+  SKU: 9486T        | Name: Diamond Chunky Hoop Earrings - Medium              | Image: ✅ Present
+    -> https://brownsjewellers.com/cdn/shop/files/9486T_1.png?v=1760585801
+  SKU: 9487T        | Name: Diamond Chunky Hoop Earrings - Large               | Image: ✅ Present
+    -> https://brownsjewellers.com/cdn/shop/files/9487T_1.png?v=1760585830
+  SKU: 9497W        | Name: Ribbon Hoop Earrings                               | Image: ✅ Present
+    -> https://brownsjewellers.com/cdn/shop/files/9497W_1.png?v=1760598328
+  SKU: 9806W        | Name: Chorus Hoop Earrings - Medium                      | Image: ✅ Present
+    -> https://brownsjewellers.com/cdn/shop/files/9806W_1.png?v=1760595856
+  SKU: 9812WR9      | Name: Diamond Hoop Earrings - Small                      | Image: ✅ Present
+    -> https://brownsjewellers.com/cdn/shop/files/9812WR9_1.png?v=1760684909
+  SKU: 9837BSWR14   | Name: Blue Kashmir Sapphire and Diamond Bubble Hoop Earrings | Image: ✅ Present
+    -> https://brownsjewellers.com/cdn/shop/files/9837BSWR14_1.png?v=1760593108
+  SKU: 9837WR14     | Name: Bubble Diamond Hoop Earrings                       | Image: ✅ Present
+    -> https://brownsjewellers.com/cdn/shop/files/9837WR14_1.png?v=1760592916
+  SKU: HOOP001      | Name: Classic Diamond Hoops (Small)                      | Image: ✅ Present
+    -> https://brownsjewellers.com/cdn/shop/files/9484T_1.png?v=1760586546
+  SKU: HOOP002      | Name: Classic Diamond Hoops (Large)                      | Image: ✅ Present
+    -> https://brownsjewellers.com/cdn/shop/files/9484T_1.png?v=1760586546
+
+[Original Angel]
+  SKU: 9400T        | Name: Original Angel Halo Diamond Earrings - Medium      | Image: ✅ Present
+    -> https://brownsjewellers.com/cdn/shop/files/9400T_1.png?v=1760584850
+  SKU: 9401T        | Name: Original Angel Halo Diamond Earrings - Large       | Image: ✅ Present
+    -> https://brownsjewellers.com/cdn/shop/files/9401T_1.png?v=1760584862
+  SKU: 9902WR       | Name: Contemporary Angel Halo Diamond Earrings - Medium  | Image: ✅ Present
+    -> https://brownsjewellers.com/cdn/shop/files/9902WR_1.png?v=1760586100
+  SKU: 9903WR       | Name: Contemporary Angel Halo Diamond Earrings - Large   | Image: ✅ Present
+    -> https://brownsjewellers.com/cdn/shop/files/9903WR_1.png?v=1760586123
+  SKU: OA001        | Name: Original Angel Diamond Earrings (White Gold)       | Image: ✅ Present
+    -> https://brownsjewellers.com/cdn/shop/files/9903WR_1.png?v=1760586123
+  SKU: OA002        | Name: Original Angel Diamond Earrings (Rose Gold)        | Image: ✅ Present
+    -> https://brownsjewellers.com/cdn/shop/files/9903WR_1.png?v=1760586123
+  SKU: OA003        | Name: Original Angel Diamond Earrings (Yellow Gold)      | Image: ✅ Present
+    -> https://brownsjewellers.com/cdn/shop/files/9903WR_1.png?v=1760586123
+  SKU: OA004        | Name: Original Angel Pavé Earrings                       | Image: ✅ Present
+    -> https://brownsjewellers.com/cdn/shop/files/9903WR_1.png?v=1760586123
+  SKU: OA005        | Name: Original Angel Drop Earrings                       | Image: ✅ Present
+    -> https://brownsjewellers.com/cdn/shop/files/9903WR_1.png?v=1760586123
+
+------------------------------
